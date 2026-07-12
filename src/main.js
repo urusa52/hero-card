@@ -211,6 +211,7 @@ function render(state) {
 (async function boot() {
   await loadData();
   bindControls();
+  wireIntents(); // 의도 → 로직 배선 (이게 빠지면 모든 버튼이 무반응)
   eventBus.on('state:changed', render);
   const seed = Date.now() % 2 ** 31;
   rng = makeRng(seed);
