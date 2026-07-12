@@ -1,0 +1,28 @@
+{
+  "yaku": [
+    { "id": "combo",     "name": "콤비",       "tier": 1, "mult": 1,
+      "condition": { "type": "same_role", "count": 2 },
+      "desc": "같은 역할 2명" },
+    { "id": "bond",      "name": "인연",       "tier": 2, "mult": 4,
+      "condition": { "type": "hero_pair" },
+      "desc": "운명으로 묶인 두 사람" },
+    { "id": "anthology", "name": "앤솔로지",   "tier": 2, "mult": 3,
+      "condition": { "type": "same_genre", "count": 5 },
+      "desc": "같은 장르 5명" },
+    { "id": "balanced",  "name": "밸런스 파티", "tier": 2, "mult": 3,
+      "condition": { "type": "role_composition", "need": ["tank", "dealer", "healer"], "size": 5 },
+      "desc": "탱커·딜러·힐러를 포함한 5명" },
+    { "id": "allin",     "name": "몰빵 파티",   "tier": 3, "mult": 6,
+      "condition": { "type": "same_role", "count": 5 },
+      "penalty": "next_pulls_minus", "desc": "같은 역할 5명 — 다음 챕터 독자들이 질린다" },
+    { "id": "royal",     "name": "왕도물",     "tier": 3, "mult": 5,
+      "condition": { "type": "tag_sequence", "seq": ["origin", "trial", "awakening", "victory"] },
+      "desc": "기원→시련→각성→승리" },
+    { "id": "tragedy",   "name": "비극",       "tier": 3, "mult": 8,
+      "condition": { "type": "tag_sequence", "seq": ["origin", "trial", "trial", "sacrifice"] },
+      "desc": "기원→시련→시련→희생" },
+    { "id": "oneman",    "name": "원맨 아미",   "tier": 4, "mult": 20,
+      "condition": { "type": "same_hero", "count": 5 },
+      "desc": "완전히 같은 영웅 5장 — 판본의 기적" }
+  ]
+}
