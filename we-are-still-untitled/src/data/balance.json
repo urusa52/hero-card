@@ -1,0 +1,23 @@
+{
+  "budget": { "initial": 100, "evaporation": 0.2, "overshootRefund": 0.1 },
+  "pool": {
+    "minOverPulls": 5,
+    "maxCards": 24,
+    "duplicateCostGrowth": 1.5
+  },
+  "ticketChapters": [4, 7],
+  "ticketBonusPulls": 10,
+  "allinPenaltyPulls": 2,
+  "rewardChoices": 3,
+  "specialRewardChance": 0.25,
+  "chapters": [
+    { "target": 60,   "pulls": 8,  "inkReward": 30 },
+    { "target": 150,  "pulls": 8,  "inkReward": 35 },
+    { "target": 320,  "pulls": 9,  "inkReward": 40 },
+    { "target": 600,  "pulls": 9,  "inkReward": 50 },
+    { "target": 1100, "pulls": 10, "inkReward": 60 },
+    { "target": 2000, "pulls": 10, "inkReward": 75 },
+    { "target": 3600, "pulls": 11, "inkReward": 90 },
+    { "target": 6500, "pulls": 11, "inkReward": 0 }
+  ]
+}
