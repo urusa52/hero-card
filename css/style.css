@@ -30,6 +30,34 @@ header {
   border-bottom: 1px solid var(--line);
 }
 header h1 { margin: 0; font-size: 1.35rem; font-weight: 600; letter-spacing: 0.06em; }
+.help-btn {
+  position: absolute; top: 18px; right: 16px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: transparent; color: var(--paper-dim);
+  border: 1px solid var(--line); font-size: 0.95rem;
+}
+.help-btn:hover { color: var(--gold); border-color: var(--gold); }
+header { position: relative; }
+
+/* ---------- 튜토리얼 배너: 상태 기반 "지금 할 일" 안내 ---------- */
+#tutorial { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+.tuto-banner {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 10px; padding: 9px 12px;
+  background: rgba(201, 162, 39, 0.08);
+  border: 1px solid var(--gold); border-radius: 5px;
+  font-size: 0.85rem; line-height: 1.5;
+}
+.tuto-text b { color: var(--gold); }
+.tuto-skip {
+  margin-left: auto; flex-shrink: 0;
+  background: transparent; color: var(--paper-dim);
+  border: 1px solid var(--line); border-radius: 4px;
+  padding: 3px 8px; font-size: 0.72rem;
+}
+.help-body { text-align: left; font-size: 0.85rem; line-height: 1.65; max-height: 55vh; overflow-y: auto; }
+.help-body b { color: var(--gold); }
+.help-body p { margin: 0 0 10px; }
 .blank-brackets { color: var(--gold); animation: breathe 3.2s ease-in-out infinite; }
 @keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 @media (prefers-reduced-motion: reduce) { .blank-brackets { animation: none; } }
@@ -91,7 +119,19 @@ button.ghost.danger { color: var(--danger); border-color: var(--danger); margin-
   margin: 4px auto 12px; border: 3px solid var(--line);
 }
 .pool-row input[type="range"] { flex: 1; accent-color: var(--ink); }
-.weight { min-width: 3em; text-align: right; font-size: 0.85rem; }
+.weight { min-width: 3em; text-align: right; font-size: 0.85rem; white-space: nowrap; }
+.deck-count { font-size: 0.78rem; color: var(--gold); min-width: 2.4em; text-align: center; }
+.deck-size { text-align: center; font-size: 0.82rem; color: var(--paper-dim); margin: 0 0 8px; }
+.deck-size.lack { color: var(--danger); }
+
+/* 남은 산 카운팅 패널 (D16 — 마작의 셀 수 있는 확률) */
+.mountain { margin-top: 12px; font-size: 0.8rem; }
+.mountain summary { cursor: pointer; color: var(--paper-dim); }
+.mountain-list { list-style: none; padding: 6px 0 0; margin: 0; display: flex; flex-wrap: wrap; gap: 5px 14px; }
+.mountain-list li { color: var(--paper-dim); }
+.mountain-list b { color: var(--paper); }
+.yaku-odds { font-size: 0.75rem; color: var(--gold); margin-top: 4px; }
+.yaku-odds small { color: var(--paper-dim); }
 .pool-tools { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
 .spend { font-size: 0.82rem; color: var(--paper-dim); }
 .spend.over { color: var(--danger); }
@@ -183,3 +223,58 @@ button.primary:disabled { opacity: 0.35; cursor: not-allowed; }
 .choice-grid button:hover { border-color: var(--paper-dim); }
 .choice-grid button small { display: block; color: var(--paper-dim); font-size: 0.72rem; margin-top: 3px; }
 .ending-title { color: var(--gold); font-size: 1.4rem; }
+
+/* ---------- 드라마 리빌 (D3 판돈 감지 / D5 탭 스킵) ---------- */
+.reveal-overlay { cursor: pointer; }
+.reveal-box { text-align: center; }
+.reveal-brackets {
+  font-size: 3.2rem; color: var(--gold);
+  animation: heartbeat 0.9s ease-in-out infinite;
+}
+.drama .reveal-brackets { animation-duration: 0.7s; } /* 드라마는 심장이 더 빨리 뛴다 */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  30% { transform: scale(1.12); opacity: 1; }
+  45% { transform: scale(1.04); }
+  60% { transform: scale(1.14); opacity: 1; }
+}
+.jackpot .reveal-brackets { text-shadow: 0 0 28px rgba(201, 162, 39, 0.8); }
+.reveal-text { color: var(--paper); font-size: 1rem; margin: 14px 0 4px; letter-spacing: 0.04em; }
+.reveal-skip { color: var(--paper-dim); font-size: 0.72rem; animation: breathe 2s infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal-brackets, .reveal-skip { animation: none; }
+}
+
+/* 역만(tier4) 선언: 화면이 흔들린다 */
+.overlay.yakuman .dialog { animation: shake 0.5s ease-out 1; }
+@keyframes shake {
+  0% { transform: translate(0, 0); }
+  15% { transform: translate(-7px, 3px); }
+  30% { transform: translate(6px, -4px); }
+  45% { transform: translate(-5px, 2px); }
+  60% { transform: translate(4px, -2px); }
+  75% { transform: translate(-2px, 1px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* 점수 내역: 기본 → ×족보 → ×수정자 순서로 도미노처럼 등장 (scoring의 breakdown 순서 그대로) */
+.breakdown li { opacity: 0; animation: rise 0.4s ease-out forwards; }
+.breakdown li:nth-child(1) { animation-delay: 0.05s; }
+.breakdown li:nth-child(2) { animation-delay: 0.4s; }
+.breakdown li:nth-child(3) { animation-delay: 0.75s; }
+.breakdown li:nth-child(4) { animation-delay: 1.1s; }
+.breakdown li:nth-child(5) { animation-delay: 1.45s; }
+.overlay.yakuman .breakdown li:last-child { font-size: 1.5rem; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .breakdown li { animation: none; opacity: 1; }
+  .overlay.yakuman .dialog { animation: none; }
+}
+
+/* 고성급 등장 섬광 — 낌새(D4): 손패에 착지하는 순간 성급 색이 번쩍 */
+.hand-card.new.r3 { animation: pop 0.25s ease-out, flash3 0.6s ease-out; }
+.hand-card.new.r4 { animation: pop 0.25s ease-out, flash4 0.7s ease-out; }
+.hand-card.new.r5 { animation: pop 0.25s ease-out, flash5 1s ease-out; }
+@keyframes flash3 { 0% { box-shadow: 0 0 24px rgba(79, 143, 186, 0.9); } }
+@keyframes flash4 { 0% { box-shadow: 0 0 30px rgba(122, 103, 174, 1); } }
+@keyframes flash5 { 0% { box-shadow: 0 0 44px rgba(201, 162, 39, 1); transform: scale(1.06); } }

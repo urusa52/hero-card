@@ -4,15 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>우리는 아직 『 』입니다</title>
-  <link rel="stylesheet" href="./css/style.css">
+  <!-- 캐시 버스팅: 배포 갱신 시 v= 값을 바꾸면 브라우저가 새 파일을 강제로 받는다 -->
+  <link rel="stylesheet" href="./css/style.css?v=20260712b">
 </head>
 <body>
   <header>
     <h1>우리는 아직 <span class="blank-brackets">『&nbsp;&nbsp;&nbsp;』</span>입니다</h1>
+    <button class="help-btn" data-action="help:toggle" title="게임 방법">?</button>
   </header>
   <div id="hud"></div>
+  <div id="tutorial"></div>
   <main id="screen"></main>
   <div id="modal"></div>
-  <script type="module" src="./src/main.js"></script>
+  <script type="module" src="./src/main.js?v=20260712b"></script>
 </body>
 </html>

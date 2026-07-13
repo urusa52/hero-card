@@ -1,7 +1,9 @@
 // render/pool.js
-// 설계 페이즈 화면: 서고(컬렉션), 계약서(풀), 잉크 파이, 검증 결과.
-// 검증은 poolBuilder의 결과를 표시만 한다 — 규칙을 여기서 중복 구현하지 않는다.
+// 설계 페이즈 화면: 서고(컬렉션), 산(쌓은 카드 묶음), 구성 파이, 검증 결과.
+// D16: 슬라이더 폐지 — +/− 로 장수를 조절하고, 구성 비율이 곧 확률로 표시된다.
+// 검증은 poolBuilder의 결과를 표시만 한다 (규칙을 여기서 중복 구현하지 않는다).
 import { validate } from '../logic/poolBuilder.js';
+import { pullsForChapter } from '../logic/round.js';
 
 const rarityStars = (r) => (r > 0 ? '★'.repeat(r) : '');
 
@@ -16,17 +18,19 @@ function cardLabel(card, data) {
     <span class="card-meta">${rarityStars(card.rarity)} ${g ? g.name : ''} ${role} ${tags ? `[${tags}]` : ''}</span>`;
 }
 
-function pieGradient(pool, cardById, data) {
-  if (!pool.length) return 'conic-gradient(#2a2d3a 0 100%)';
+// 산의 구성 비율을 파이로 — "이 확률, 당신이 쌓았습니다"
+function pieGradient(deck, cardById, data) {
+  if (!deck.length) return 'conic-gradient(#2a2d3a 0 100%)';
+  const counts = {};
+  for (const id of deck) counts[id] = (counts[id] || 0) + 1;
   let acc = 0;
-  const stops = pool.map((e) => {
-    const c = cardById[e.cardId];
+  const stops = Object.entries(counts).map(([id, n]) => {
+    const c = cardById[id];
     const color = c.kind === 'hero' ? data.cards.genres[c.genre].color
       : c.kind === 'special' ? '#c9a227' : '#4a4d58';
-    const from = acc; acc += e.weight;
+    const from = acc; acc += (n / deck.length) * 100;
     return `${color} ${from}% ${acc}%`;
   });
-  if (acc < 100) stops.push(`#2a2d3a ${acc}% 100%`);
   return `conic-gradient(${stops.join(',')})`;
 }
 
@@ -34,42 +38,48 @@ export function renderPool(state, data) {
   const el = document.getElementById('screen');
   const cardById = data.cardById;
   const rules = data.balance.pool;
-  const v = validate(state.pool, state.ink, cardById, rules);
+  const basePulls = pullsForChapter(state.chapterIdx, data.balance, state.carried);
+  const v = validate(state.deck, state.ink, cardById, rules, basePulls);
+
+  const counts = {};
+  for (const id of state.deck) counts[id] = (counts[id] || 0) + 1;
 
   const available = [...state.collection, ...data.cards.alwaysAvailable];
   const collectionHtml = available.map((id) => {
     const c = cardById[id];
+    const n = counts[id] || 0;
     return `<li class="row">
       ${cardLabel(c, data)}
       <span class="cost">${c.cost >= 0 ? c.cost : `+${-c.cost}`}</span>
-      <button data-action="pool:add" data-id="${id}">넣기</button>
+      ${n ? `<button data-action="pool:sub" data-id="${id}" class="ghost">−</button>
+             <span class="deck-count">${n}장</span>` : ''}
+      <button data-action="pool:add" data-id="${id}">＋ 쌓기</button>
     </li>`;
   }).join('');
 
-  const poolHtml = state.pool.map((e, i) => {
-    const c = cardById[e.cardId];
-    const cap = rules.weightCapByRarity[String(c.rarity)] || 95;
-    return `<li class="row pool-row">
+  const deckHtml = Object.entries(counts).map(([id, n]) => {
+    const c = cardById[id];
+    const share = Math.round((n / state.deck.length) * 100);
+    return `<li class="row">
       ${cardLabel(c, data)}
-      <input type="range" data-action="pool:weight" data-index="${i}"
-             min="${rules.minWeight}" max="${cap}" step="5" value="${e.weight}">
-      <span class="weight">${e.weight}%</span>
-      <button data-action="pool:remove" data-index="${i}" class="ghost">빼기</button>
+      <span class="weight">${n}장 · ${share}%</span>
     </li>`;
   }).join('');
 
   el.innerHTML = `
     <div class="design-grid">
       <section class="panel">
-        <h2>서고 <small>영웅을 계약서에 올리세요</small></h2>
+        <h2>서고 <small>영웅을 산에 쌓으세요 — 여러 장도 가능</small></h2>
         <ul class="list">${collectionHtml}</ul>
       </section>
       <section class="panel">
-        <h2>캐스팅 계약서 <small>확률은 당신이 씁니다</small></h2>
-        <div class="pie" style="background:${pieGradient(state.pool, cardById, data)}"></div>
-        <ul class="list">${poolHtml || '<li class="empty">비어 있는 계약서입니다</li>'}</ul>
+        <h2>산(山) <small>구성이 곧 확률입니다</small></h2>
+        <div class="pie" style="background:${pieGradient(state.deck, cardById, data)}"></div>
+        <p class="deck-size ${state.deck.length < v.need ? 'lack' : ''}">
+          ${state.deck.length} / 최소 ${v.need}장 (이번 장 호출 ${basePulls}회)
+        </p>
+        <ul class="list">${deckHtml || '<li class="empty">아직 아무도 쌓이지 않았습니다</li>'}</ul>
         <div class="pool-tools">
-          <button data-action="pool:normalize" class="ghost">가중치 100% 맞추기</button>
           <span class="spend ${v.spend > state.ink ? 'over' : ''}">잉크 ${v.spend >= 0 ? '소모' : '환급'} ${Math.abs(v.spend)} / 보유 ${state.ink}</span>
         </div>
         ${v.errors.length ? `<ul class="errors">${v.errors.map((e) => `<li>${e}</li>`).join('')}</ul>` : ''}

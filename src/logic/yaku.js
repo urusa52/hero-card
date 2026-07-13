@@ -158,3 +158,26 @@ export function evaluate(hand, yakuDefs, ctx) {
     };
   });
 }
+
+// 다음 호출 완성 확률 (D16 — 산이 실물이라 정확히 계산 가능)
+// 산의 각 카드 종류에 대해 "그 카드가 손에 들어오면 이 족보가 성립하는가"를 판정해,
+// (완성시키는 장수 / 산 전체 장수)를 반환한다. 텐파이 연출과 마지막 호출 드라마의 데이터 소스.
+export function completionOdds(hand, mountain, cardById, yakuDefs, ctx) {
+  if (!mountain.length) return {};
+  const counts = {};
+  for (const id of mountain) counts[id] = (counts[id] || 0) + 1;
+  const now = evaluate(hand, yakuDefs, ctx);
+  const odds = {};
+  for (const e of now) {
+    if (e.ok) continue;
+    let completing = 0;
+    for (const [id, n] of Object.entries(counts)) {
+      const probe = { ...cardById[id], cardId: id, uid: -1, isCopy: false };
+      const after = finders[e.def.condition.type]([...hand, probe], e.def.condition, ctx);
+      if (after) completing += n;
+    }
+    if (completing > 0)
+      odds[e.def.id] = { completing, total: mountain.length, pct: Math.round((completing / mountain.length) * 100) };
+  }
+  return odds;
+}

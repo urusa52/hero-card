@@ -1,10 +1,8 @@
 {
   "budget": { "initial": 100, "evaporation": 0.2, "overshootRefund": 0.1 },
   "pool": {
-    "minCards": 5,
-    "maxCards": 12,
-    "minWeight": 5,
-    "weightCapByRarity": { "3": 30, "4": 15, "5": 5 },
+    "minOverPulls": 5,
+    "maxCards": 24,
     "duplicateCostGrowth": 1.5
   },
   "ticketChapters": [4, 7],

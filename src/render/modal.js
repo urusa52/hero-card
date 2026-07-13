@@ -5,6 +5,39 @@ export function renderModal(state, data) {
   const el = document.getElementById('modal');
   const cardById = data.cardById;
 
+  // 도움말: 어느 페이즈에서든 ? 버튼으로 열람
+  if (state.helpOpen) {
+    el.innerHTML = overlay(`
+      <h2>게임 방법 <small>잊히기 전에, 다시 읽히게 하라</small></h2>
+      <div class="help-body">
+        <p><b>목표</b> — 챕터마다 목표 반향(점수)이 있습니다. 제한된 호출 횟수 안에 족보를 선언해 채우면 다음 장으로. 8장을 완성하면 빈 『 』가 채워집니다.</p>
+        <p><b>흐름</b> — ① <b>산 쌓기</b>: 잉크(예산)로 카드를 장 단위로 산에 쌓습니다. 같은 영웅 여러 장도 가능 — 구성이 곧 확률입니다 →
+        ② <b>호출</b>: 산에서 한 장씩 뽑기. 뽑힌 카드는 산에서 사라지고(비복원), 남은 산은 전부 셀 수 있습니다 →
+        ③ <b>선언</b>: 성립한 족보(빛나는 항목)를 선언해 반향 획득. 쓰인 카드는 소모, 남은 패는 다음 선언의 재료.</p>
+        <p><b>족보</b> — 콤비(같은 역할 2)는 안전하지만 ×1, 원맨 아미(같은 영웅 5장)는 ×20. 낮은 족보로 버틸지, 큰 것을 노릴지가 이 게임의 전부입니다. 후반 챕터는 낮은 족보만으로는 수학적으로 불가능해요.</p>
+        <p><b>알아두면 좋은 것</b> — 산은 호출 수보다 5장 이상 커야 하고, 산이 마르면 남은 호출은 흩어집니다 ·
+        백지(꽝)를 쌓으면 잉크가 환급되지만 뽑힐 위험도 함께 집니다 ·
+        띠지는 다음 선언 ×2 · 필사본은 영웅을 복제하지만 그 족보의 배율이 절반(복각판) ·
+        남은 잉크는 다음 장으로 이월되되 20% 마릅니다 · 몰빵 파티는 강하지만 다음 장 호출 -2.</p>
+      </div>
+      <button data-action="help:toggle" class="primary">닫기</button>`);
+    return;
+  }
+
+  // 드라마 리빌: 판돈이 큰 호출은 공개가 지연된다 — 탭하면 즉시 공개 (D3/D5)
+  if (state.reveal) {
+    el.innerHTML = `
+      <div class="overlay reveal-overlay ${state.reveal.drama ? 'drama' : 'jackpot'}"
+           data-action="reveal:open" role="button">
+        <div class="reveal-box">
+          <div class="reveal-brackets">『&nbsp;&nbsp;&nbsp;』</div>
+          <p class="reveal-text">${state.reveal.text}</p>
+          <p class="reveal-skip">탭하여 공개</p>
+        </div>
+      </div>`;
+    return;
+  }
+
   // 필사본: 손패의 영웅 중 하나를 골라 베낀다
   if (state.pendingCopy) {
     const targets = state.hand.filter((c) => c.kind === 'hero');
